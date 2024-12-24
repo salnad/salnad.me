@@ -1,2 +1,3 @@
-# salnad.me
-personal website, built with astro &amp; tailwind
+code to create salnad dot me. 
+
+built with using astro & tailwind

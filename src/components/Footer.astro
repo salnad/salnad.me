@@ -1,0 +1,18 @@
+---
+const footerItems = [
+  { content: "github", link: "https://github.com/salnad" },
+  { content: "linkedin", link: "https://www.linkedin.com/in/salnad" },
+  { content: "email", link: "mailto:salnad02@gmail.com" },
+  { content: "resume", link: "/files/salil-nadkarni-resume-aug-2024.pdf" }
+];
+---
+
+<footer>
+  <div class="flex gap-6 justify-start">
+      {
+        footerItems.map((item) => (
+          <a class="text-white hover:text-gray-300 transition-colors" href={item.link}>{item.content}</a>
+        ))
+      }
+  </div>
+</footer>

@@ -1,16 +1,40 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Footer from "../components/Footer.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
+<style>
+    @keyframes gradient {
+        0% {
+            background-position: 0% 0%;
+        }
+        50% {
+            background-position: 100% 100%;
+        }
+        100% {
+            background-position: 0% 0%;
+        }
+    }
 
-<body>
-    <a href="/">Home</a>
-    <a href="/about/">About</a>
-    <a href="/thoughts/">Thoughts</a>
-    <h1>salnad</h1>
-    <h2>I am a software engineer at Slack</h2>
-    <p>This is my personal website</p>
-</body>
+    .fun-text:hover {
+        background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+        background-size: 150% 150%;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        animation: gradient 3s linear infinite;
+    }
+</style>
+<BaseLayout title="salnad">
+    <div class="text-left w-full">
+        <h1 class="text-5xl font-bold text-white mb-4">Salil Nadkarni</h1>
+        <h3 class="text-xl text-white mb-8 italic">software engineer @ slack, university of michigan alum</h3>
+
+        <h2 class="text-xl text-white mb-8 font-bold">deeply interested in education, creativity, ai, and <span class="fun-text">having fun</span></h2>        
+        <p class="text-white text-lg mb-12">
+            welcome to my site 👋🏾<br>
+            i share <a href="/thoughts" class="text-white hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">thoughts 🧠</a>, <a href="/things" class="text-white hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">things ⚙️</a>, and <a href="/tidbits" class="text-white hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">tidbits ✏️</a> <br>
+            thanks for stopping by ✨!
+        </p>
+    </div>
+    <Footer slot="footer" />
+</BaseLayout>

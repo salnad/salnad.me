@@ -1,0 +1,32 @@
+---
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title} - salnad</title>
+		<style>
+			@font-face {
+				font-family: 'Comic Sans Mono';
+				src: url('./fonts/ComicMono.ttf') format('truetype');
+				font-weight: normal;
+				font-style: normal;
+			}
+		</style>
+	</head>
+	<body class="bg-black min-h-screen flex flex-col items-center justify-center font-['Comic_Sans_Mono',_monospace] px-[10%] py-[5%]">
+		<main class="text-center w-full md:w-1/2 mx-auto">
+			<slot />
+		</main>
+		<slot name="footer" />
+	</body>
+</html>

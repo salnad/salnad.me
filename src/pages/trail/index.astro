@@ -1,0 +1,86 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = await getCollection('trail');
+
+// Function to get word count from markdown content
+function getWordCount(content: string): number {
+  const text = content.replace(/\s+/g, ' ').trim();
+  return text.split(' ').length;
+}
+
+// Process each post
+const processedPosts = await Promise.all(
+  posts.map(async (post) => {
+    const wordCount = getWordCount(post.body || '');
+    const showFullContent = wordCount <= 500;
+    console.log(wordCount);
+    // Render the full content
+    const { Content } = await render(post);
+    return {
+      post,
+      wordCount,
+      showFullContent,
+      Content
+    };
+  })
+);
+---
+
+<BaseLayout title="~/trail">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <h1 class="text-3xl font-bold text-center mb-12 text-white">🔎 trail</h1>
+    
+    <div class="space-y-12">
+      {processedPosts.map(({ post, wordCount, showFullContent, Content }) => (
+        <div class="border-b border-gray-700 pb-8 mb-8 last:border-0">
+          <a target="_blank" href={`${post.data.link}`} class="text-2xl text-blue-400 hover:underline block mb-4">
+            {post.data.title}
+          </a>
+          
+          <div class="text-gray-300 prose prose-invert max-w-none">
+            {showFullContent ? (
+              <Content />
+            ) : (
+              <div class="excerpt">
+                <Content />
+              </div>
+              <a href={`/trail/${post.data.slug}`} class="text-gray-500 mt-2 block hover:underline">[... {wordCount} words]</a>
+            )}
+          </div>
+          
+          <div class="text-sm text-gray-500 mt-4">
+            {new Date(post.data.postDate || Date.now()).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  /* Only show the first paragraph in excerpts */
+  .excerpt :global(p:first-child) {
+    display: block;
+  }
+  .excerpt :global(p:not(:first-child)),
+  .excerpt :global(h1),
+  .excerpt :global(h2),
+  .excerpt :global(h3),
+  .excerpt :global(h4),
+  .excerpt :global(h5),
+  .excerpt :global(h6),
+  .excerpt :global(ul),
+  .excerpt :global(ol),
+  .excerpt :global(blockquote),
+  .excerpt :global(pre),
+  .excerpt :global(table) {
+    display: none;
+  }
+</style> 

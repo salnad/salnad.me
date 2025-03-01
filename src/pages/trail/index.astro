@@ -5,11 +5,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PathHeader from '../../components/PathHeader.astro';
 import { marked } from 'marked';
 
-const unsortedPosts = await getCollection('trail');
+const unsortedPosts: CollectionEntry<'trail'>[] = await getCollection('trail');
 const posts = unsortedPosts.sort((a, b) => {
   const dateA = new Date(a.data.postDate).getTime();
   const dateB = new Date(b.data.postDate).getTime();
-  return dateB - dateA;
+  
+  // First sort by date (newest first)
+  if (dateA !== dateB) {
+    return dateB - dateA;
+  }
+  
+  // If dates are the same, sort alphabetically by title
+  return a.data.title.localeCompare(b.data.title);
 });
 
 // Function to get word count from markdown content

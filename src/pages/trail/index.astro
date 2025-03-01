@@ -2,8 +2,10 @@
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { marked } from 'marked';
 
-const posts = await getCollection('trail');
+const unsortedPosts = await getCollection('trail');
+const posts = unsortedPosts.sort((a, b) => new Date(b.data.postDate) - new Date(a.data.postDate));
 
 // Function to get word count from markdown content
 function getWordCount(content: string): number {
@@ -11,52 +13,67 @@ function getWordCount(content: string): number {
   return text.split(' ').length;
 }
 
+// Function to get first paragraph from markdown content
+function getFirstParagraph(content: string): string {
+  const paragraphs = content.split('\n\n');
+  return paragraphs[0] || '';
+}
+
 // Process each post
 const processedPosts = await Promise.all(
   posts.map(async (post) => {
     const wordCount = getWordCount(post.body || '');
     const showFullContent = wordCount <= 500;
-    console.log(wordCount);
+    const contentToShow = showFullContent ? post.body : getFirstParagraph(post.body || '');
+    
     // Render the full content
     const { Content } = await render(post);
+    
+    // Create title HTML
+    const titleHTML = `<a href="${post.data.link}" target="_blank" class="text-white hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">${post.data.title}</a> —— `;
+    
     return {
       post,
       wordCount,
       showFullContent,
-      Content
+      contentToShow,
+      Content,
+      titleHTML
     };
   })
 );
 ---
 
-<BaseLayout title="~/trail">
+<BaseLayout title="~ / trail">
   <div class="max-w-3xl mx-auto px-4 py-12">
     <h1 class="text-3xl font-bold text-center mb-12 text-white">🔎 trail</h1>
     
     <div class="space-y-12">
-      {processedPosts.map(({ post, wordCount, showFullContent, Content }) => (
+      {processedPosts.map(({ post, wordCount, showFullContent, contentToShow, Content, titleHTML }) => (
         <div class="border-b border-gray-700 pb-8 mb-8 last:border-0">
-          <a target="_blank" href={`${post.data.link}`} class="text-2xl text-blue-400 hover:underline block mb-4">
-            {post.data.title}
-          </a>
-          
-          <div class="text-gray-300 prose prose-invert max-w-none">
-            {showFullContent ? (
-              <Content />
-            ) : (
-              <div class="excerpt">
-                <Content />
-              </div>
-              <a href={`/trail/${post.data.slug}`} class="text-gray-500 mt-2 block hover:underline">[... {wordCount} words]</a>
-            )}
+          <div class="text-gray-300">
+            <div class="prose prose-invert max-w-none">
+              {showFullContent ? (
+                <div class="trail-post text-left">
+                  <Fragment set:html={titleHTML} />
+                  <Content />
+                </div>
+              ) : (
+                <div class="trail-post text-left">
+                  <Fragment set:html={titleHTML + marked.parse(contentToShow || '')} />
+                  <a href={`/trail/${post.data.slug}`} class="text-gray-500 mt-2 hover:underline block">[... {wordCount} words]</a>
+                </div>
+              )}
+            </div>
           </div>
           
-          <div class="text-sm text-gray-500 mt-4">
-            {new Date(post.data.postDate || Date.now()).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
+          <div class="text-sm text-gray-500 mt-4 text-left">
+            <a href={`/trail/${post.data.slug}`} class="hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">🔗</a> {new Date(post.data.postDate || Date.now()).toISOString().split('T')[0]} 
+            {post.data.tags && post.data.tags.map((tag, index) => (
+              <Fragment>
+                #{tag}{index < (post.data.tags?.length || 0) - 1 ? ', ' : ''}
+              </Fragment>
+            ))}
           </div>
         </div>
       ))}
@@ -64,23 +81,23 @@ const processedPosts = await Promise.all(
   </div>
 </BaseLayout>
 
-<style>
-  /* Only show the first paragraph in excerpts */
-  .excerpt :global(p:first-child) {
-    display: block;
+<style> 
+  /* Trail post styling */
+  .trail-post :global(p:first-of-type) {
+    display: inline;
   }
-  .excerpt :global(p:not(:first-child)),
-  .excerpt :global(h1),
-  .excerpt :global(h2),
-  .excerpt :global(h3),
-  .excerpt :global(h4),
-  .excerpt :global(h5),
-  .excerpt :global(h6),
-  .excerpt :global(ul),
-  .excerpt :global(ol),
-  .excerpt :global(blockquote),
-  .excerpt :global(pre),
-  .excerpt :global(table) {
-    display: none;
+  
+  /* .title-link, .title-text {
+    font-size: 1.5rem;
+    color: #60a5fa;
+    margin-right: 0.5rem;
   }
+  
+  .title-link {
+    text-decoration: none;
+  }
+  
+  .title-link:hover {
+    text-decoration: underline;
+  } */
 </style> 

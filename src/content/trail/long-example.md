@@ -6,7 +6,7 @@ description: 'suuuuuuuper long'
 slug: '2025-01-21'
 tags: ["astro", "blogging", "learning in public"]
 ---
-Sure! Here’s your 600-word Lorem Ipsum with Markdown syntax, including bold text, italicized text, inline code, blockquotes, and lists:
+Sure! `Here’s` your 600-word Lorem Ipsum with Markdown syntax, including bold text, italicized text, inline code, blockquotes, and lists:
 
 	“Lorem ipsum dolor sit amet, consectetur adipiscing elit.”
 — Anonymous Latin Scholar

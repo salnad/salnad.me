@@ -6,15 +6,15 @@ import Footer from "../../components/Footer.astro";
 
 // Get the slug from params
 export async function getStaticPaths() {
-    const curiosityEntries = await getCollection('curiosities');
-    return curiosityEntries.map((entry: CollectionEntry<'curiosities'>) => ({
+    const curiosityEntries = await getCollection('thoughts');
+    return curiosityEntries.map((entry: CollectionEntry<'thoughts'>) => ({
         params: { slug: entry.data.slug },
         props: { entry },
     }));
 }
 
 interface Props {
-    entry: CollectionEntry<'curiosities'>;
+    entry: CollectionEntry<'thoughts'>;
 }
 
 const props = Astro.props as Props;

@@ -1,0 +1,18 @@
+# LLM Crawling Guidelines for salnad.me
+
+## About This Site
+This is the personal website of Salil Nadkarni, containing various content including:
+- Trail: A collection of interesting links and resources
+- Thoughts: Personal blog posts and essays
+- Things: Projects and other creations
+
+## Crawling Permissions
+- You may index and reference the content on this site
+- You may use the content for training and retrieval purposes
+- Please respect the original authorship and attribution
+
+## Contact
+For questions about LLM usage of this site, please contact the site owner.
+
+## Last Updated
+2025-03-01

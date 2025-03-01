@@ -13,6 +13,7 @@ const things = defineCollection({
       editedDate: z.date().optional(),
       description: z.string().optional(),
       tags: z.array(z.string()).optional(),
+      sitemapPriority: z.coerce.number().min(0.0).max(1.0).optional(),
     })
 });
 
@@ -25,6 +26,7 @@ const thoughts = defineCollection({
     editedDate: z.date().optional(),
     description: z.string().optional(),
     tags: z.array(z.string()).optional(),
+    sitemapPriority: z.coerce.number().min(0.0).max(1.0).optional(),
   })
 });
 
@@ -38,6 +40,7 @@ const trail = defineCollection({
     editedDate: z.date().optional(),
     description: z.string().optional(),
     tags: z.array(z.string()).optional(),
+    sitemapPriority: z.coerce.number().min(0.0).max(1.0).optional(),
   })
 });
 // Export a single `collections` object to register your collection(s)

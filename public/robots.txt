@@ -1,0 +1,7 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Sitemap locations
+Sitemap: https://salnad.me/sitemap-index.xml
+Sitemap: https://salnad.me/sitemap.xml 

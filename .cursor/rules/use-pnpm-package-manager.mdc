@@ -1,1 +1,56 @@
- 
+# Use PNPM Package Manager
+
+This rule enforces the use of pnpm for package management in this project.
+
+<rule>
+name: use_pnpm_package_manager
+description: Always use pnpm instead of npm or yarn for package management
+
+filters:
+  # Match package installation commands
+  - type: content
+    pattern: "(npm install|yarn add)"
+  # Match package.json changes
+  - type: file_extension
+    pattern: "package\\.json$"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "npm (install|i) "
+        message: "Please use 'pnpm add' instead of 'npm install'"
+      - pattern: "yarn add "
+        message: "Please use 'pnpm add' instead of 'yarn add'"
+
+  - type: suggest
+    message: |
+      This project uses pnpm as its package manager. Please use the following commands:
+
+      - To install a new dependency: `pnpm add <package-name>`
+      - To install a dev dependency: `pnpm add -D <package-name>`
+      - To install all dependencies: `pnpm install`
+      - To run a script: `pnpm <script-name>`
+      - To update packages: `pnpm update`
+      - To remove a package: `pnpm remove <package-name>`
+
+      Benefits of using pnpm:
+      - Faster installation
+      - Disk space efficiency through content-addressable storage
+      - Strict dependency resolution
+      - Consistent node_modules structure
+
+examples:
+  - input: "npm install react"
+    output: "pnpm add react"
+  - input: "npm i -D typescript"
+    output: "pnpm add -D typescript"
+  - input: "yarn add express"
+    output: "pnpm add express"
+
+metadata:
+  priority: high
+  version: 1.0
+  tags:
+    - package-management
+    - best-practices
+</rule> 

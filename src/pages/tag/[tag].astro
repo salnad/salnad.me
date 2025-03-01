@@ -1,0 +1,142 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PathHeader from '../../components/PathHeader.astro';
+import { marked } from 'marked';
+
+// Get all unique tags from all collections
+export async function getStaticPaths() {
+  const trailEntries = await getCollection('trail');
+  
+  // Extract all unique tags from all collections
+  const allTags = new Set<string>();
+  
+  trailEntries.forEach(entry => {
+    if (entry.data.tags) {
+      entry.data.tags.forEach(tag => allTags.add(tag));
+    }
+  });
+  
+  // Create a path for each tag
+  return Array.from(allTags).map(tag => ({
+    params: { tag },
+    props: { tag }
+  }));
+}
+
+const { tag } = Astro.props;
+
+// Get all posts with this tag
+const trailEntries = await getCollection('trail');
+const postsWithTag = trailEntries.filter(post => 
+  post.data.tags && post.data.tags.includes(tag)
+).sort((a, b) => {
+  const dateA = new Date(a.data.dateCreated).getTime();
+  const dateB = new Date(b.data.dateCreated).getTime();
+  
+  // First sort by date (newest first)
+  if (dateA !== dateB) {
+    return dateB - dateA;
+  }
+  
+  // If dates are the same, sort alphabetically by title
+  return a.data.title.localeCompare(b.data.title);
+});
+
+// Function to get word count from markdown content
+function getWordCount(content: string): number {
+  const text = content.replace(/\s+/g, ' ').trim();
+  return text.split(' ').length;
+}
+
+// Function to get first paragraph from markdown content
+function getFirstParagraph(content: string): string {
+  const paragraphs = content.split('\n\n');
+  return paragraphs[0] || '';
+}
+
+// Process each post
+const processedPosts = await Promise.all(
+  postsWithTag.map(async (post) => {
+    const wordCount = getWordCount(post.body || '');
+    const showFullContent = wordCount <= 200;
+    const contentToShow = showFullContent ? post.body : getFirstParagraph(post.body || '');
+    
+    // Render the full content
+    const { Content } = await render(post);
+    
+    // Create title HTML
+    const titleHTML = `<a href="${post.data.link}" target="_blank" class="text-white hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">${post.data.title}</a> —— `;
+    
+    return {
+      post,
+      postSlug: `${new Date(post.data.dateCreated || Date.now()).toISOString().split('T')[0]}/${post.data.slug}`,
+      wordCount,
+      showFullContent,
+      contentToShow,
+      Content,
+      titleHTML
+    };
+  })
+);
+
+// Path segments for the header
+const pathSegments = [
+  { label: "✨ salnad", href: "/" },
+  { label: "🏷️ tags", href: "/tag" },
+  { label: `#${tag}`, href: `/tag/${tag}`, isActive: true }
+];
+---
+
+<BaseLayout title={`~ / tag / ${tag}`}>
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <PathHeader segments={pathSegments} />
+    
+    <h1 class="text-2xl font-bold mb-8 text-white">Posts tagged with #{tag}</h1>
+    
+    <div class="space-y-12">
+      {processedPosts.length > 0 ? (
+        processedPosts.map(({ post, wordCount, showFullContent, contentToShow, Content, titleHTML, postSlug }) => (
+          <div class="border-b border-gray-700 pb-8 mb-8 last:border-0">
+            <div class="text-gray-300">
+              <div class="prose prose-invert max-w-none">
+                {showFullContent ? (
+                  <div class="trail-post text-left">
+                    <Fragment set:html={titleHTML} />
+                    <Content />
+                  </div>
+                ) : (
+                  <div class="trail-post text-left">
+                    <Fragment set:html={titleHTML + marked.parse(contentToShow || '')} />
+                    <a href={`/trail/${postSlug}`} class="text-gray-500 mt-2 hover:underline block">[... {wordCount} words]</a>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div class="text-sm text-gray-500 mt-4 text-left">
+              <a href={`/trail/${postSlug}`} class="hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">🔗</a> {new Date(post.data.dateCreated || Date.now()).toISOString().split('T')[0]} 
+              {post.data.tags && post.data.tags.map((postTag, index) => (
+                <Fragment>
+                  <a href={`/tag/${postTag}`} class="hover:text-gray-300 transition-colors">
+                    #{postTag}
+                  </a>{index < (post.data.tags?.length || 0) - 1 ? ', ' : ''}
+                </Fragment>
+              ))}
+            </div>
+          </div>
+        ))
+      ) : (
+        <div class="text-gray-400">No posts found with this tag.</div>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<style> 
+  /* Trail post styling */
+  .trail-post :global(p:first-of-type) {
+    display: inline;
+  }
+</style> 

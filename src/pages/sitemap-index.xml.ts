@@ -24,7 +24,7 @@ export const GET: APIRoute = async () => {
       
       return {
         url: `/trail/${entry.data.slug}`,
-        lastmod: entry.data.editedDate || entry.data.postDate,
+        lastmod: entry.data.dateModified || entry.data.dateCreated,
         priority
       };
     }),
@@ -35,7 +35,7 @@ export const GET: APIRoute = async () => {
       
       return {
         url: `/thoughts/${entry.data.slug}`,
-        lastmod: entry.data.editedDate || entry.data.postDate,
+        lastmod: entry.data.dateModified || entry.data.dateCreated,
         priority
       };
     }),
@@ -46,7 +46,7 @@ export const GET: APIRoute = async () => {
       
       return {
         url: `/things/${entry.data.slug}`,
-        lastmod: entry.data.editedDate || entry.data.postDate,
+        lastmod: entry.data.dateModified || entry.data.dateCreated,
         priority
       };
     })

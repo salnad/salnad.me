@@ -31,7 +31,7 @@ const { Content, headings, remarkPluginFrontmatter } = await render(entry);
     <article class="text-white">
         <h1>{entry.data.title}</h1>
         <div class="metadata">
-            <span>{entry.data.postDate.toLocaleDateString()}</span>
+            <span>{entry.data.dateCreated.toLocaleDateString()}</span>
         </div>
         <Content />
     </article>

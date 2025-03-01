@@ -1,7 +1,7 @@
 ---
 title: 'test page'
 link: 'https://salnad.me'
-postDate: 2025-03-01
+dateCreated: 2025-03-01
 description: 'this guy is suuuuuuuper long'
 slug: 'example'
 tags: ["test"]
@@ -22,7 +22,7 @@ Aliquam eget erat a turpis sollicitudin fringilla. Duis auctor purus ut nunc feu
 ---
 
 ### Code Example:
-Here’s an example of `inline code`:  
+Here's an example of `inline code`:  
 `console.log("Hello, World!");`
 
 Or a **multi-line code block**:

@@ -9,7 +9,7 @@ import Footer from "../../components/Footer.astro";
 export async function getStaticPaths() {
     const trailEntries = await getCollection('trail');
     return trailEntries.map((entry: CollectionEntry<'trail'>) => ({
-        params: { slug: entry.data.slug },
+        params: { slug: `${new Date(entry.data.dateCreated || Date.now()).toISOString().split('T')[0]}/${entry.data.slug}` },
         props: { entry },
     }));
 }
@@ -52,10 +52,12 @@ const pathSegments = [
             </div>
             
             <div class="text-sm text-gray-500 mt-4 text-left">
-                {new Date(entry.data.postDate || Date.now()).toISOString().split('T')[0]}
+                {new Date(entry.data.dateCreated || Date.now()).toISOString().split('T')[0]}
                 {entry.data.tags && entry.data.tags.map((tag, index) => (
                     <Fragment>
-                        #{tag}{index < (entry.data.tags?.length || 0) - 1 ? ', ' : ''}
+                        <a href={`/tag/${tag}`} class="hover:text-gray-300 transition-colors">
+                            #{tag}
+                        </a>{index < (entry.data.tags?.length || 0) - 1 ? ', ' : ''}
                     </Fragment>
                 ))}
             </div>

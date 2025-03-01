@@ -7,8 +7,8 @@ import { marked } from 'marked';
 
 const unsortedPosts: CollectionEntry<'trail'>[] = await getCollection('trail');
 const posts = unsortedPosts.sort((a, b) => {
-  const dateA = new Date(a.data.postDate).getTime();
-  const dateB = new Date(b.data.postDate).getTime();
+  const dateA = new Date(a.data.dateCreated).getTime();
+  const dateB = new Date(b.data.dateCreated).getTime();
   
   // First sort by date (newest first)
   if (dateA !== dateB) {
@@ -46,6 +46,7 @@ const processedPosts = await Promise.all(
     
     return {
       post,
+      postSlug: `${new Date(post.data.dateCreated || Date.now()).toISOString().split('T')[0]}/${post.data.slug}`,
       wordCount,
       showFullContent,
       contentToShow,
@@ -67,7 +68,7 @@ const pathSegments = [
     <PathHeader segments={pathSegments} />
     
     <div class="space-y-12">
-      {processedPosts.map(({ post, wordCount, showFullContent, contentToShow, Content, titleHTML }) => (
+      {processedPosts.map(({ post, wordCount, showFullContent, contentToShow, Content, titleHTML, postSlug }) => (
         <div class="border-b border-gray-700 pb-8 mb-8 last:border-0">
           <div class="text-gray-300">
             <div class="prose prose-invert max-w-none">
@@ -79,17 +80,19 @@ const pathSegments = [
               ) : (
                 <div class="trail-post text-left">
                   <Fragment set:html={titleHTML + marked.parse(contentToShow || '')} />
-                  <a href={`/trail/${post.data.slug}`} class="text-gray-500 mt-2 hover:underline block">[... {wordCount} words]</a>
+                  <a href={`/trail/${postSlug}`} class="text-gray-500 mt-2 hover:underline block">[... {wordCount} words]</a>
                 </div>
               )}
             </div>
           </div>
           
           <div class="text-sm text-gray-500 mt-4 text-left">
-            <a href={`/trail/${post.data.slug}`} class="hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">🔗</a> {new Date(post.data.postDate || Date.now()).toISOString().split('T')[0]} 
+            <a href={`/trail/${postSlug}`} class="hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">🔗</a> {new Date(post.data.dateCreated || Date.now()).toISOString().split('T')[0]} 
             {post.data.tags && post.data.tags.map((tag, index) => (
               <Fragment>
-                #{tag}{index < (post.data.tags?.length || 0) - 1 ? ', ' : ''}
+                <a href={`/tag/${tag}`} class="hover:text-gray-300 transition-colors">
+                  #{tag}
+                </a>{index < (post.data.tags?.length || 0) - 1 ? ', ' : ''}
               </Fragment>
             ))}
           </div>

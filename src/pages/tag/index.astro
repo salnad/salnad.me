@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PathHeader from '../../components/PathHeader.astro';
+
+// Get all unique tags from all collections
+const trailEntries = await getCollection('trail');
+
+// Extract all unique tags and count posts for each tag
+const tagCounts = new Map<string, number>();
+
+trailEntries.forEach(entry => {
+  if (entry.data.tags) {
+    entry.data.tags.forEach(tag => {
+      const currentCount = tagCounts.get(tag) || 0;
+      tagCounts.set(tag, currentCount + 1);
+    });
+  }
+});
+
+// Convert to array and sort alphabetically
+const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+// Path segments for the header
+const pathSegments = [
+  { label: "✨ salnad", href: "/" },
+  { label: "🏷️ tags", href: "/tag", isActive: true }
+];
+---
+
+<BaseLayout title="~ / tags">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <PathHeader segments={pathSegments} />
+    
+    <h1 class="text-2xl font-bold mb-8 text-white">All Tags</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {sortedTags.map(([tag, count]) => (
+        <a 
+          href={`/tag/${tag}`} 
+          class="p-4 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+        >
+          <div class="flex justify-between items-center">
+            <span class="text-white font-medium">#{tag}</span>
+            <span class="text-gray-400 text-sm">{count} post{count !== 1 ? 's' : ''}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+    
+    {sortedTags.length === 0 && (
+      <div class="text-gray-400">No tags found.</div>
+    )}
+  </div>
+</BaseLayout> 

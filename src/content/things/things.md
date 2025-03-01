@@ -1,6 +1,6 @@
 ---
 title: '2025-01-21 (info networks on the real-world)'
-postDate: 2025-01-21
+dateCreated: 2025-01-21
 description: 'My first post'
 slug: '2025-01-21'
 image:

@@ -1,7 +1,7 @@
 ---
 title: 'simonwillisons approach to running a linkblog'
 link: 'https://simonwillison.net/2024/Dec/22/link-blog/'
-postDate: 2023-03-01
+dateCreated: 2023-03-01
 description: 'a tech guy getting meta again'
 slug: 'make-a-link-blog'
 tags: ["blogging", "writing"]
@@ -24,7 +24,7 @@ but the most compelling reason for me came at the end of this post.
 
 > I wish people would post more links to interesting things
 >
-> I feel like Twitter and LinkedIn and Instagram and TikTok have pushed a lot of people out of the habit of doing that, by penalizing shared links in the various “algorithms”
+> I feel like Twitter and LinkedIn and Instagram and TikTok have pushed a lot of people out of the habit of doing that, by penalizing shared links in the various "algorithms"
 >
 > Sharing interesting links with commentary is a low effort, high value way to contribute to internet life at large.
 

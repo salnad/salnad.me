@@ -1,0 +1,60 @@
+---
+import Footer from "../components/Footer.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import MatrixScramble from "../components/MatrixScramble.astro";
+---
+
+<style>
+    @keyframes gradient {
+        0% {
+            background-position: 0% 0%;
+        }
+        50% {
+            background-position: 100% 100%;
+        }
+        100% {
+            background-position: 0% 0%;
+        }
+    }
+
+    .fun-text {
+        background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+        background-size: 150% 150%;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        animation: gradient 3s linear infinite;
+    }
+</style>
+
+<BaseLayout title="404 Not Found">
+    <div class="text-center w-full">
+        <h1 class="text-5xl font-bold text-white mb-4">
+            404: page not found
+        </h1>        
+        <p id="random-message" class="text-gray-500 text-lg mb-12"></p>
+        
+        <p class="text-white text-lg mb-12">
+            let's get you back <a href="/" class="text-white hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">home 🏠</a>
+        </p>
+    </div>
+    <Footer slot="footer" />
+</BaseLayout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const messages = [
+            "psst, i'm not sure you're supposed to be here 👀",
+            "oh hey, i wasn't expecting a visitor 😳",
+            "hmm, this page seems to have wandered off 🚶‍♂️",
+            "oops! looks like you found a digital dead end 🛑",
+            "this page is playing hide and seek (and winning) 🙈"
+        ];
+        
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        const messageElement = document.getElementById('random-message');
+        if (messageElement) {
+            messageElement.textContent = randomMessage;
+        }
+    });
+</script> 

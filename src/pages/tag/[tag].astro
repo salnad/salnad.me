@@ -1,25 +1,34 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PathHeader from '../../components/PathHeader.astro';
+import PostFooter from '../../components/PostFooter.astro';
+import WordCount from '../../components/WordCount.astro';
 import { marked } from 'marked';
 
 // Get all unique tags from all collections
 export async function getStaticPaths() {
   const trailEntries = await getCollection('trail');
+  const thoughtsEntries = await getCollection('thoughts');
   
   // Extract all unique tags from all collections
   const allTags = new Set<string>();
   
-  trailEntries.forEach(entry => {
+  trailEntries.forEach((entry: CollectionEntry<'trail'>) => {
     if (entry.data.tags) {
-      entry.data.tags.forEach(tag => allTags.add(tag));
+      entry.data.tags.forEach((tag: string) => allTags.add(tag));
+    }
+  });
+  
+  thoughtsEntries.forEach((entry: CollectionEntry<'thoughts'>) => {
+    if (entry.data.tags) {
+      entry.data.tags.forEach((tag: string) => allTags.add(tag));
     }
   });
   
   // Create a path for each tag
-  return Array.from(allTags).map(tag => ({
+  return Array.from(allTags).map((tag: string) => ({
     params: { tag },
     props: { tag }
   }));
@@ -29,11 +38,29 @@ const { tag } = Astro.props;
 
 // Get all posts with this tag
 const trailEntries = await getCollection('trail');
-const postsWithTag = trailEntries.filter(post => 
+const thoughtsEntries = await getCollection('thoughts');
+
+// Filter trail entries with this tag
+const trailWithTag = trailEntries.filter((post: CollectionEntry<'trail'>) => 
   post.data.tags && post.data.tags.includes(tag)
-).sort((a, b) => {
-  const dateA = new Date(a.data.dateCreated).getTime();
-  const dateB = new Date(b.data.dateCreated).getTime();
+).map((post: CollectionEntry<'trail'>) => ({
+  ...post,
+  collection: 'trail' as const
+}));
+
+// Filter thoughts entries with this tag
+const thoughtsWithTag = thoughtsEntries.filter((post: CollectionEntry<'thoughts'>) => 
+  post.data.tags && post.data.tags.includes(tag)
+).map((post: CollectionEntry<'thoughts'>) => ({
+  ...post,
+  collection: 'thoughts' as const
+}));
+
+// Combine and sort all posts with this tag
+const postsWithTag = [...trailWithTag, ...thoughtsWithTag].sort((a, b) => {
+  // Use dateModified if available, otherwise fall back to dateCreated
+  const dateA = new Date(a.data.dateModified || a.data.dateCreated).getTime();
+  const dateB = new Date(b.data.dateModified || b.data.dateCreated).getTime();
   
   // First sort by date (newest first)
   if (dateA !== dateB) {
@@ -60,24 +87,41 @@ function getFirstParagraph(content: string): string {
 const processedPosts = await Promise.all(
   postsWithTag.map(async (post) => {
     const wordCount = getWordCount(post.body || '');
-    const showFullContent = wordCount <= 200;
-    const contentToShow = showFullContent ? post.body : getFirstParagraph(post.body || '');
+    const collection = post.collection;
     
-    // Render the full content
-    const { Content } = await render(post);
-    
-    // Create title HTML
-    const titleHTML = `<a href="${post.data.link}" target="_blank" class="text-white hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">${post.data.title}</a> —— `;
-    
-    return {
-      post,
-      postSlug: `${new Date(post.data.dateCreated || Date.now()).toISOString().split('T')[0]}/${post.data.slug}`,
-      wordCount,
-      showFullContent,
-      contentToShow,
-      Content,
-      titleHTML
-    };
+    if (collection === 'trail') {
+      // Trail post processing
+      const showFullContent = wordCount <= 200;
+      const contentToShow = showFullContent ? post.body : getFirstParagraph(post.body || '');
+      
+      // Create title HTML for trail posts
+      const titleHTML = `<a href="${post.data.link}" target="_blank" class="text-white hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">${post.data.title}</a> —— `;
+      
+      return {
+        post,
+        collection,
+        postSlug: `${new Date(post.data.dateCreated || Date.now()).toISOString().split('T')[0]}/${post.data.slug}`,
+        wordCount,
+        showFullContent,
+        contentToShow,
+        titleHTML,
+        description: ''
+      };
+    } else {
+      // Thoughts post processing
+      const firstParagraph = getFirstParagraph(post.body || '');
+      
+      return {
+        post,
+        collection,
+        postSlug: post.data.slug,
+        wordCount,
+        showFullContent: false,
+        contentToShow: firstParagraph,
+        titleHTML: '',
+        description: post.data.description || ''
+      };
+    }
   })
 );
 
@@ -97,34 +141,48 @@ const pathSegments = [
     
     <div class="space-y-12">
       {processedPosts.length > 0 ? (
-        processedPosts.map(({ post, wordCount, showFullContent, contentToShow, Content, titleHTML, postSlug }) => (
+        processedPosts.map(({ post, collection, wordCount, showFullContent, contentToShow, titleHTML, postSlug, description }) => (
           <div class="border-b border-gray-700 pb-8 mb-8 last:border-0">
             <div class="text-gray-300">
               <div class="prose prose-invert max-w-none">
-                {showFullContent ? (
-                  <div class="trail-post text-left">
-                    <Fragment set:html={titleHTML} />
-                    <Content />
-                  </div>
+                {collection === 'trail' ? (
+                  showFullContent ? (
+                    <div class="trail-post text-left">
+                      <Fragment set:html={titleHTML} />
+                      <Fragment set:html={marked.parse(post.body || '')} />
+                    </div>
+                  ) : (
+                    <div class="trail-post text-left">
+                      <Fragment set:html={titleHTML + marked.parse(contentToShow || '')} />
+                      <WordCount count={wordCount} url={`/trail/${postSlug}`} />
+                    </div>
+                  )
                 ) : (
-                  <div class="trail-post text-left">
-                    <Fragment set:html={titleHTML + marked.parse(contentToShow || '')} />
-                    <a href={`/trail/${postSlug}`} class="text-gray-500 mt-2 hover:underline block">[... {wordCount} words]</a>
+                  <div class="thoughts-post text-left">
+                    <h2 class="text-xl font-bold mb-1 text-left">
+                      <a href={`/thoughts/${postSlug}`} class="text-white hover:text-gray-300 transition-colors">
+                        {post.data.title}
+                      </a>
+                    </h2>
+                    {description && (
+                      <p class="text-gray-400 mb-3 italic text-left">{description}</p>
+                    )}
+                    <div class="mt-2 text-left">
+                      <Fragment set:html={marked.parse(contentToShow || '')} />
+                      <WordCount count={wordCount} url={`/thoughts/${postSlug}`} />
+                    </div>
                   </div>
                 )}
               </div>
             </div>
             
-            <div class="text-sm text-gray-500 mt-4 text-left">
-              <a href={`/trail/${postSlug}`} class="hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">🔗</a> {new Date(post.data.dateCreated || Date.now()).toISOString().split('T')[0]} 
-              {post.data.tags && post.data.tags.map((postTag, index) => (
-                <Fragment>
-                  <a href={`/tag/${postTag}`} class="hover:text-gray-300 transition-colors">
-                    #{postTag}
-                  </a>{index < (post.data.tags?.length || 0) - 1 ? ', ' : ''}
-                </Fragment>
-              ))}
-            </div>
+            <PostFooter 
+              date={post.data.dateModified || post.data.dateCreated} 
+              tags={post.data.tags} 
+              slug={postSlug} 
+              baseUrl={collection === 'trail' ? '/trail' : '/thoughts'} 
+              icon={collection === 'trail' ? '🔎' : '🧠'}
+            />
           </div>
         ))
       ) : (
@@ -138,5 +196,15 @@ const pathSegments = [
   /* Trail post styling */
   .trail-post :global(p:first-of-type) {
     display: inline;
+  }
+  
+  /* Thoughts post styling */
+  .thoughts-post :global(p:first-of-type) {
+    display: inline;
+  }
+  
+  /* Ensure all content is left-aligned */
+  .thoughts-post :global(*) {
+    text-align: left;
   }
 </style> 

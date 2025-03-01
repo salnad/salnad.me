@@ -1,11 +1,12 @@
 ---
 type: thought
 title: "a ux for creation"
-tags: ["ux", "llms"]
+tags: ["ux", "llms", "writing"]
 slug: 'a-ux-for-creation'
 dateCreated: 2025-02-14
 dateModified: 2025-02-14
-published: True               
+published: True    
+description: "how can we design better interfaces for llms?"   
 ---
 chat interfaces fundamentally limit how i interact with LLMs. they’re incredibly effective at showing the power of LLMs to a wide audience — specially in the days where agi felt more like fiction than the goal of the tech industry. and for that reason, they’ve become the de facto standard. but, in my opinion, flaws in their design hold me back from realizing the true creative potential of these models.
 

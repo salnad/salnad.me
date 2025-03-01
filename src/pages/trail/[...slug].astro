@@ -33,7 +33,7 @@ const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 const pathSegments = [
   { label: "✨ salnad", href: "/" },
   { label: "🔎 trail", href: "/trail" },
-  { label: `🔗 ${entry.data.title}`, href: `/trail/${new Date(entry.data.dateCreated || Date.now()).toISOString().split('T')[0]}/${entry.data.slug}`, isActive: true }
+  { label: `${entry.data.title}`, href: `/trail/${new Date(entry.data.dateCreated || Date.now()).toISOString().split('T')[0]}/${entry.data.slug}`, isActive: true }
 ];
 ---
 

@@ -13,7 +13,8 @@ const { tags, className = "text-gray-500" } = Astro.props;
       <span>
         <a href={`/tag/${tag}`} class="hover:text-gray-300 transition-colors">
           #{tag}
-        </a>{index < tags.length - 1 ? ', ' : ''}
+        </a>
+        {index < tags.length - 1 ? ',\u00A0' : ''}
       </span>
     ))}
   </div>

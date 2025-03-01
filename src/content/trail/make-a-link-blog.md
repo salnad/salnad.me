@@ -1,7 +1,7 @@
 ---
 title: 'simonwillisons approach to running a linkblog'
 link: 'https://simonwillison.net/2024/Dec/22/link-blog/'
-dateCreated: 2023-03-01
+dateCreated: 2025-03-01
 description: 'a tech guy getting meta again'
 slug: 'make-a-link-blog'
 tags: ["blogging", "writing"]

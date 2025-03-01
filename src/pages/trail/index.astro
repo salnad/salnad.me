@@ -61,7 +61,7 @@ const processedPosts = await Promise.all(
 // Path segments for the header
 const pathSegments = [
   { label: "✨ salnad", href: "/" },
-  { label: "🔎 trail", href: "/trail", isActive: true }
+  { label: " trail", href: "/trail", isActive: true }
 ];
 ---
 
@@ -92,7 +92,7 @@ const pathSegments = [
             date={post.data.dateCreated} 
             tags={post.data.tags} 
             slug={postSlug} 
-            baseUrl="/trail" 
+            baseUrl="/trail"
           />
         </div>
       ))}

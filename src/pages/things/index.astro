@@ -1,11 +1,14 @@
 ---
-import { getCollection } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
-const posts = await getCollection('things');
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import UnderConstruction from '../../components/UnderConstruction.astro';
+import PathHeader from '../../components/PathHeader.astro';
 ---
-<h1>My posts</h1>
-<ul>
-  {posts.map((post: CollectionEntry<'things'>) => (
-    <li><a href={`/things/${post.id}`}>{post.data.title}</a></li>
-  ))}
-</ul> 
+<BaseLayout title="~ / things">
+  <PathHeader 
+        segments={[
+            { label: "✨ salnad", href: "/" },
+            { label: "🛠️ things", href: "/things", isActive: true }
+        ]} 
+    />
+  <UnderConstruction />
+</BaseLayout>

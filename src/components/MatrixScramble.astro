@@ -1,0 +1,87 @@
+---
+interface Props {
+  startText: string;
+  endText: string;
+  className?: string;
+}
+
+const { startText, endText, className = "" } = Astro.props;
+---
+
+<span id="matrix-scramble" class={className}>{startText}</span>
+
+<script define:vars={{ startText, endText }}>
+  // Matrix scramble animation
+  document.addEventListener("DOMContentLoaded", () => {
+    const element = document.getElementById("matrix-scramble");
+    if (!element) return;
+    
+    // Characters to use for scrambling effect
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+    
+    // Duration of the animation in milliseconds
+    const duration = 2000;
+    // How often to update the text during animation (in milliseconds)
+    const interval = 50;
+    
+    let isAnimating = false;
+    
+    // Function to start the animation
+    const startAnimation = () => {
+      if (isAnimating) return;
+      isAnimating = true;
+      
+      const startTime = Date.now();
+      const iterations = Math.floor(duration / interval);
+      let currentIteration = 0;
+      
+      const animationInterval = setInterval(() => {
+        currentIteration++;
+        const progress = currentIteration / iterations;
+        
+        // Generate the current text based on progress
+        let currentText = "";
+        
+        for (let i = 0; i < endText.length; i++) {
+          // If this position doesn't exist in the start text, or we've passed the reveal threshold for this character
+          if (i >= startText.length || progress > i / endText.length) {
+            // If we're very close to the end of the animation, show the final character
+            if (progress > 0.9 && Math.random() > 0.5) {
+              currentText += endText[i];
+            } else {
+              // Otherwise show a random character
+              currentText += chars[Math.floor(Math.random() * chars.length)];
+            }
+          } else {
+            // Keep the original character from startText
+            currentText += startText[i];
+          }
+        }
+        
+        // If we're at the end of the animation, show the final text
+        if (currentIteration >= iterations) {
+          clearInterval(animationInterval);
+          element.textContent = endText;
+          isAnimating = false;
+        } else {
+          element.textContent = currentText;
+        }
+      }, interval);
+    };
+    
+    // Start animation when element is hovered
+    element.addEventListener("mouseenter", startAnimation);
+    
+    // Optional: Start animation when element is in view
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setTimeout(startAnimation, 500); // Delay to make it noticeable after page load
+          observer.disconnect();
+        }
+      });
+    });
+    
+    observer.observe(element);
+  });
+</script> 

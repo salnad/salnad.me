@@ -1,5 +1,5 @@
 ---
-title: 'a test page'
+title: 'test page'
 link: 'https://salnad.me'
 postDate: 2025-03-01
 description: 'this guy is suuuuuuuper long'

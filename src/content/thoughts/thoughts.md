@@ -7,8 +7,6 @@ dateCreated: 2025-02-14
 dateModified: 2025-02-14
 published: True               
 ---
-
-# a ux for creation
 chat interfaces fundamentally limit how i interact with LLMs. they’re incredibly effective at showing the power of LLMs to a wide audience — specially in the days where agi felt more like fiction than the goal of the tech industry. and for that reason, they’ve become the de facto standard. but, in my opinion, flaws in their design hold me back from realizing the true creative potential of these models.
 
 this recent observation from a [blog post by Daniel Delaney](https://danieldelaney.net/chat/) caught my eye as i was scrolling through hacker news:

@@ -1,3 +1,8 @@
+---
+description: Always use pnpm instead of npm or yarn for package management
+globs: 
+alwaysApply: false
+---
 # Use PNPM Package Manager
 
 This rule enforces the use of pnpm for package management in this project.

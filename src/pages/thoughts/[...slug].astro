@@ -2,12 +2,15 @@
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import PathHeader from "../../components/PathHeader.astro";
+import DateDisplay from "../../components/DateDisplay.astro";
+import TagList from "../../components/TagList.astro";
 import Footer from "../../components/Footer.astro";
 
 // Get the slug from params
 export async function getStaticPaths() {
-    const curiosityEntries = await getCollection('thoughts');
-    return curiosityEntries.map((entry: CollectionEntry<'thoughts'>) => ({
+    const thoughtsEntries = await getCollection('thoughts');
+    return thoughtsEntries.map((entry: CollectionEntry<'thoughts'>) => ({
         params: { slug: entry.data.slug },
         props: { entry },
     }));
@@ -25,15 +28,48 @@ if (!entry) {
 }
 
 const { Content, headings, remarkPluginFrontmatter } = await render(entry);
+
+// Path segments for the header
+const pathSegments = [
+  { label: "✨ salnad", href: "/" },
+  { label: "🧠 thoughts", href: "/thoughts" },
+  { label: entry.data.title, href: `/thoughts/${entry.data.slug}`, isActive: true }
+];
 ---
 
-<BaseLayout title={entry.data.title}>
-    <article class="text-white">
-        <h1>{entry.data.title}</h1>
-        <div class="metadata">
-            <span>{entry.data.dateCreated.toLocaleDateString()}</span>
-        </div>
-        <Content />
-    </article>
-    <Footer slot="footer" />
+<BaseLayout title={`~ / thoughts / ${entry.data.title}`}>
+    <div class="max-w-3xl mx-auto px-4 py-12">
+        <PathHeader segments={pathSegments} />
+        
+        <article class="prose prose-invert max-w-none">
+            <h1 class="text-3xl font-bold mb-4 text-left">{entry.data.title}</h1>
+            
+            <div class="mb-8 flex items-center flex-wrap text-left">
+                <div class="mr-4">
+                    <DateDisplay 
+                        dateCreated={entry.data.dateCreated} 
+                        dateModified={entry.data.dateModified} 
+                    />
+                </div>
+                
+                {entry.data.tags && <TagList tags={entry.data.tags} className="text-gray-500" />}
+            </div>
+
+            <hr class="border-gray-700 my-8" />
+            
+            <div class="thoughts-content text-left">
+                <Content />
+            </div>
+        </article>
+        <hr class="border-gray-700 my-8" />
+        
+        <Footer />
+    </div>
 </BaseLayout>
+
+<style>
+  /* Additional styling for thoughts content if needed */
+  .thoughts-content {
+    line-height: 1.7;
+  }
+</style>

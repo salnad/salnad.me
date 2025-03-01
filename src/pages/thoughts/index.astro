@@ -1,14 +1,107 @@
 ---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import UnderConstruction from '../../components/UnderConstruction.astro';
 import PathHeader from '../../components/PathHeader.astro';
+import PostFooter from '../../components/PostFooter.astro';
+import WordCount from '../../components/WordCount.astro';
+import { marked } from 'marked';
+
+const unsortedPosts: CollectionEntry<'thoughts'>[] = await getCollection('thoughts');
+const posts = unsortedPosts.sort((a, b) => {
+  const dateA = new Date(a.data.dateCreated).getTime();
+  const dateB = new Date(b.data.dateCreated).getTime();
+  
+  // First sort by date (newest first)
+  if (dateA !== dateB) {
+    return dateB - dateA;
+  }
+  
+  // If dates are the same, sort alphabetically by title
+  return a.data.title.localeCompare(b.data.title);
+});
+
+// Function to get word count from markdown content
+function getWordCount(content: string): number {
+  const text = content.replace(/\s+/g, ' ').trim();
+  return text.split(' ').length;
+}
+
+// Function to get first paragraph from markdown content
+function getFirstParagraph(content: string): string {
+  const paragraphs = content.split('\n\n');
+  return paragraphs[0] || '';
+}
+
+// Process each post
+const processedPosts = await Promise.all(
+  posts.map(async (post) => {
+    const wordCount = getWordCount(post.body || '');
+    const firstParagraph = getFirstParagraph(post.body || '');
+    
+    return {
+      post,
+      postSlug: post.data.slug,
+      wordCount,
+      firstParagraph,
+      description: post.data.description || ''
+    };
+  })
+);
+
+// Path segments for the header
+const pathSegments = [
+  { label: "✨ salnad", href: "/" },
+  { label: "🧠 thoughts", href: "/thoughts", isActive: true }
+];
 ---
-<BaseLayout title="~ / things">
-  <PathHeader 
-        segments={[
-            { label: "✨ salnad", href: "/" },
-            { label: "🧠 thoughts", href: "/thoughts", isActive: true }
-        ]} 
-    />
-  <UnderConstruction />
+
+<BaseLayout title="~ / thoughts">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <PathHeader segments={pathSegments} />
+    
+    <div class="space-y-12">
+      {processedPosts.map(({ post, wordCount, firstParagraph, description, postSlug }) => (
+        <div class="border-b border-gray-700 pb-8 mb-8 last:border-0">
+          <div class="text-gray-300">
+            <div class="prose prose-invert max-w-none">
+              <div class="thoughts-post text-left">
+                <h2 class="text-xl font-bold mb-1 text-left">
+                  <a href={`/thoughts/${postSlug}`} class="text-white hover:text-gray-300 transition-colors">
+                    {post.data.title}
+                  </a>
+                </h2>
+                {description && (
+                  <p class="text-gray-400 mb-3 italic text-left">{description}</p>
+                )}
+                <div class="mt-2 text-left">
+                  <Fragment set:html={marked.parse(firstParagraph || '')} />
+                  <WordCount count={wordCount} url={`/thoughts/${postSlug}`} />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <PostFooter 
+            date={post.data.dateCreated} 
+            tags={post.data.tags} 
+            slug={postSlug} 
+            baseUrl="/thoughts" 
+          />
+        </div>
+      ))}
+    </div>
+  </div>
 </BaseLayout>
+
+<style> 
+  /* Thoughts post styling */
+  .thoughts-post :global(p:first-of-type) {
+    display: inline;
+  }
+  
+  /* Ensure all content is left-aligned */
+  .thoughts-post :global(*) {
+    text-align: left;
+  }
+</style>

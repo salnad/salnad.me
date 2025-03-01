@@ -3,6 +3,8 @@ import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PathHeader from '../../components/PathHeader.astro';
+import PostFooter from '../../components/PostFooter.astro';
+import WordCount from '../../components/WordCount.astro';
 import { marked } from 'marked';
 
 const unsortedPosts: CollectionEntry<'trail'>[] = await getCollection('trail');
@@ -80,22 +82,18 @@ const pathSegments = [
               ) : (
                 <div class="trail-post text-left">
                   <Fragment set:html={titleHTML + marked.parse(contentToShow || '')} />
-                  <a href={`/trail/${postSlug}`} class="text-gray-500 mt-2 hover:underline block">[... {wordCount} words]</a>
+                  <WordCount count={wordCount} url={`/trail/${postSlug}`} />
                 </div>
               )}
             </div>
           </div>
           
-          <div class="text-sm text-gray-500 mt-4 text-left">
-            <a href={`/trail/${postSlug}`} class="hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid">🔗</a> {new Date(post.data.dateCreated || Date.now()).toISOString().split('T')[0]} 
-            {post.data.tags && post.data.tags.map((tag, index) => (
-              <Fragment>
-                <a href={`/tag/${tag}`} class="hover:text-gray-300 transition-colors">
-                  #{tag}
-                </a>{index < (post.data.tags?.length || 0) - 1 ? ', ' : ''}
-              </Fragment>
-            ))}
-          </div>
+          <PostFooter 
+            date={post.data.dateCreated} 
+            tags={post.data.tags} 
+            slug={postSlug} 
+            baseUrl="/trail" 
+          />
         </div>
       ))}
     </div>

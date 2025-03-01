@@ -1,0 +1,20 @@
+---
+interface Props {
+  tags: string[];
+  className?: string;
+}
+
+const { tags, className = "text-gray-500" } = Astro.props;
+---
+
+{tags && tags.length > 0 && (
+  <div class={className + " inline-flex flex-wrap"}>
+    {tags.map((tag, index) => (
+      <span>
+        <a href={`/tag/${tag}`} class="hover:text-gray-300 transition-colors">
+          #{tag}
+        </a>{index < tags.length - 1 ? ', ' : ''}
+      </span>
+    ))}
+  </div>
+)} 

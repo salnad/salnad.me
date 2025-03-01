@@ -1,0 +1,27 @@
+---
+interface Props {
+  dateCreated: Date;
+  dateModified?: Date | null;
+  showLabels?: boolean;
+}
+
+const { dateCreated, dateModified, showLabels = true } = Astro.props;
+
+const formatDate = (date: Date) => {
+  return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+};
+
+const createdFormatted = formatDate(dateCreated);
+const modifiedFormatted = dateModified ? formatDate(dateModified) : null;
+---
+
+<div class="flex flex-wrap gap-x-6 text-sm text-gray-400">
+  <div>
+    {showLabels && <span class="font-medium">Posted:</span>} {createdFormatted}
+  </div>
+  {modifiedFormatted && (
+    <div>
+      {showLabels && <span class="font-medium">Updated:</span>} {modifiedFormatted}
+    </div>
+  )}
+</div> 

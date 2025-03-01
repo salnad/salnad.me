@@ -1,0 +1,21 @@
+---
+import TagList from './TagList.astro';
+
+interface Props {
+  date: Date;
+  tags?: string[];
+  slug: string;
+  baseUrl: string;
+}
+
+const { date, tags, slug, baseUrl } = Astro.props;
+const formattedDate = new Date(date || Date.now()).toISOString().split('T')[0]; // YYYY-MM-DD format
+---
+
+<div class="text-sm text-gray-500 mt-4 text-left flex items-center flex-wrap">
+  <a href={`${baseUrl}/${slug}`} class="hover:text-gray-300 transition-colors underline decoration-dotted hover:decoration-solid mr-2">🔗</a> 
+  <span class="mr-2">{formattedDate}</span>
+  {tags && tags.length > 0 && (
+    <TagList tags={tags} className="inline text-gray-500" />
+  )}
+</div> 

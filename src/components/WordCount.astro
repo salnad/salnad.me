@@ -1,0 +1,10 @@
+---
+interface Props {
+  count: number;
+  url: string;
+}
+
+const { count, url } = Astro.props;
+---
+
+<a href={url} class="text-gray-500 mt-2 hover:underline block text-left">[... {count} words]</a> 

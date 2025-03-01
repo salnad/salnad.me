@@ -3,6 +3,8 @@ import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PathHeader from "../../components/PathHeader.astro";
+import DateDisplay from "../../components/DateDisplay.astro";
+import TagList from "../../components/TagList.astro";
 import Footer from "../../components/Footer.astro";
 
 // Get the slug from params
@@ -31,7 +33,7 @@ const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 const pathSegments = [
   { label: "✨ salnad", href: "/" },
   { label: "🔎 trail", href: "/trail" },
-  { label: `🔗 ${entry.data.title}`, href: `/trail/${entry.data.slug}`, isActive: true }
+  { label: `🔗 ${entry.data.title}`, href: `/trail/${new Date(entry.data.dateCreated || Date.now()).toISOString().split('T')[0]}/${entry.data.slug}`, isActive: true }
 ];
 ---
 
@@ -51,15 +53,16 @@ const pathSegments = [
                 </div>
             </div>
             
-            <div class="text-sm text-gray-500 mt-4 text-left">
-                {new Date(entry.data.dateCreated || Date.now()).toISOString().split('T')[0]}
-                {entry.data.tags && entry.data.tags.map((tag, index) => (
-                    <Fragment>
-                        <a href={`/tag/${tag}`} class="hover:text-gray-300 transition-colors">
-                            #{tag}
-                        </a>{index < (entry.data.tags?.length || 0) - 1 ? ', ' : ''}
-                    </Fragment>
-                ))}
+            <div class="mt-4 flex items-center flex-wrap text-left">
+                <div class="mr-4">
+                    <DateDisplay 
+                        dateCreated={entry.data.dateCreated} 
+                        dateModified={entry.data.dateModified}
+                        showLabels={false}
+                    />
+                </div>
+                
+                {entry.data.tags && <TagList tags={entry.data.tags} className="text-sm text-gray-500" />}
             </div>
         </div>
     </div>

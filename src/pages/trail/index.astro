@@ -2,10 +2,15 @@
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PathHeader from '../../components/PathHeader.astro';
 import { marked } from 'marked';
 
 const unsortedPosts = await getCollection('trail');
-const posts = unsortedPosts.sort((a, b) => new Date(b.data.postDate) - new Date(a.data.postDate));
+const posts = unsortedPosts.sort((a, b) => {
+  const dateA = new Date(a.data.postDate).getTime();
+  const dateB = new Date(b.data.postDate).getTime();
+  return dateB - dateA;
+});
 
 // Function to get word count from markdown content
 function getWordCount(content: string): number {
@@ -42,11 +47,17 @@ const processedPosts = await Promise.all(
     };
   })
 );
+
+// Path segments for the header
+const pathSegments = [
+  { label: "✨ salnad", href: "/" },
+  { label: "🔎 trail", href: "/trail", isActive: true }
+];
 ---
 
 <BaseLayout title="~ / trail">
   <div class="max-w-3xl mx-auto px-4 py-12">
-    <h1 class="text-3xl font-bold text-center mb-12 text-white">🔎 trail</h1>
+    <PathHeader segments={pathSegments} />
     
     <div class="space-y-12">
       {processedPosts.map(({ post, wordCount, showFullContent, contentToShow, Content, titleHTML }) => (

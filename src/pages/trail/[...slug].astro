@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import PathHeader from "../../components/PathHeader.astro";
 import Footer from "../../components/Footer.astro";
 
 // Get the slug from params
@@ -25,15 +26,46 @@ if (!entry) {
 }
 
 const { Content, headings, remarkPluginFrontmatter } = await render(entry);
+
+// Path segments for the header
+const pathSegments = [
+  { label: "✨ salnad", href: "/" },
+  { label: "🔎 trail", href: "/trail" },
+  { label: `🔗 ${entry.data.title}`, href: `/trail/${entry.data.slug}`, isActive: true }
+];
 ---
 
-<BaseLayout title={entry.data.title}>
-    <article class="text-white">
-        <h1>{entry.data.title}</h1>
-        <div class="metadata">
-            <span>{entry.data.postDate.toLocaleDateString()}</span>
+<BaseLayout title={`~ / trail / ${entry.data.slug}`}>
+    <div class="max-w-3xl mx-auto px-4 py-12">
+        <PathHeader segments={pathSegments} />
+        
+        <div class="border-b border-gray-700 pb-8 mb-8">
+            <div class="text-gray-300">
+                <div class="prose prose-invert max-w-none">
+                    <div class="trail-post text-left">
+                        <a href={entry.data.link} target="_blank" class="text-white hover:text-gray-300 transition-colors underline text-xl font-bold mb-4 inline-block">
+                            {entry.data.title} 
+                        </a> <span class="text-white text-sm"> —— </span>
+                        <Content />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-sm text-gray-500 mt-4 text-left">
+                {new Date(entry.data.postDate || Date.now()).toISOString().split('T')[0]}
+                {entry.data.tags && entry.data.tags.map((tag, index) => (
+                    <Fragment>
+                        #{tag}{index < (entry.data.tags?.length || 0) - 1 ? ', ' : ''}
+                    </Fragment>
+                ))}
+            </div>
         </div>
-        <Content />
-    </article>
-    <Footer slot="footer" />
+    </div>
 </BaseLayout>
+
+<style>
+  /* Trail post styling */
+  .trail-post :global(p:first-of-type) {
+    display: inline;
+  }
+</style>

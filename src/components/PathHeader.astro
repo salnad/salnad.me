@@ -1,0 +1,36 @@
+---
+export interface PathSegment {
+  label: string;
+  href: string;
+  isActive?: boolean;
+}
+
+interface Props {
+  segments: PathSegment[];
+}
+
+const { segments } = Astro.props;
+---
+
+<header class="py-4 mb-8 overflow-x-auto">
+  <nav class="flex flex-wrap items-center text-lg">
+    {segments.map((segment, index) => (
+      <div class="flex items-center">
+        {index > 0 && <span class="mx-2 text-gray-500">/</span>}
+        <a 
+          href={segment.href}
+          class={`px-2 py-1 transition-colors ${segment.isActive ? 'text-white font-bold' : 'text-gray-300 hover:text-white hover:underline hover:decoration-dotted'}`}
+        >
+          {segment.label}
+        </a>
+      </div>
+    ))}
+  </nav>
+</header>
+
+<style>
+  header {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 #1f2937;
+  }
+</style> 

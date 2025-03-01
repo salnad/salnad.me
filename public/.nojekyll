@@ -1,0 +1,2 @@
+# Created because we github pages (i.e. salnad.github.io) will not read dirs starting with _ as it assumes it's a jekyll site.
+# This is a workaround to allow us to use a static site generator.

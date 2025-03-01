@@ -15,11 +15,12 @@ const { segments } = Astro.props;
 <header class="py-4 mb-8 overflow-x-auto">
   <nav class="flex flex-wrap items-center text-2xl justify-center">
     {segments.map((segment, index) => (
-      <div class="flex items-center">
-        {index > 0 && <span class="mx-2 text-gray-500">/</span>}
+      <div class="flex items-center segment-container">
+        {index > 0 && <span class="mx-2 text-gray-500 flex-shrink-0">/</span>}
         <a 
           href={segment.href}
-          class={`px-2 py-1 transition-colors ${segment.isActive ? 'text-white font-bold' : 'text-gray-300 hover:text-white hover:underline hover:decoration-dotted'}`}
+          class={`px-2 py-1 transition-colors segment-link ${segment.isActive ? 'text-white font-bold' : 'text-gray-300 hover:text-white hover:underline hover:decoration-dotted'}`}
+          title={segment.label}
         >
           {segment.label}
         </a>
@@ -32,5 +33,36 @@ const { segments } = Astro.props;
   header {
     scrollbar-width: thin;
     scrollbar-color: #4b5563 #1f2937;
+  }
+  
+  .segment-container {
+    max-width: 100%;
+    min-width: 0;
+  }
+  
+  .segment-link {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
+  
+  @media (min-width: 640px) {
+    .segment-link {
+      max-width: 300px;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .segment-link {
+      max-width: 400px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .segment-link {
+      max-width: 500px;
+    }
   }
 </style> 

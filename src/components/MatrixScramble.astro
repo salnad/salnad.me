@@ -25,9 +25,11 @@ const { startText, endText, className = "" } = Astro.props;
     const interval = 50;
     
     let isAnimating = false;
+    let currentDisplayText = startText;
+    let hasInitialAnimationRun = false;
     
-    // Function to start the animation
-    const startAnimation = () => {
+    // Function to animate from one text to another
+    const animateText = (from, to) => {
       if (isAnimating) return;
       isAnimating = true;
       
@@ -42,41 +44,106 @@ const { startText, endText, className = "" } = Astro.props;
         // Generate the current text based on progress
         let currentText = "";
         
-        for (let i = 0; i < endText.length; i++) {
-          // If this position doesn't exist in the start text, or we've passed the reveal threshold for this character
-          if (i >= startText.length || progress > i / endText.length) {
-            // If we're very close to the end of the animation, show the final character
-            if (progress > 0.9 && Math.random() > 0.5) {
-              currentText += endText[i];
+        // Calculate the current target length based on progress
+        const fromLength = from.length;
+        const toLength = to.length;
+        const currentTargetLength = Math.round(fromLength + (toLength - fromLength) * progress);
+        
+        // For each position up to the maximum length of both strings
+        const maxLength = Math.max(fromLength, toLength);
+        
+        for (let i = 0; i < maxLength; i++) {
+          // If this position is beyond our current target length, skip it
+          if (i >= currentTargetLength) {
+            continue;
+          }
+          
+          // If this character position exists in both strings
+          if (i < fromLength && i < toLength) {
+            // Determine if we should show the final character based on progress
+            const charProgress = progress * 1.5; // Slightly accelerate character transitions
+            const charThreshold = i / maxLength;
+            
+            if (charProgress > charThreshold) {
+              // Gradually transition to the target character
+              if (Math.random() > (1 - charProgress + charThreshold)) {
+                currentText += to[i];
+              } else {
+                currentText += chars[Math.floor(Math.random() * chars.length)];
+              }
             } else {
-              // Otherwise show a random character
-              currentText += chars[Math.floor(Math.random() * chars.length)];
+              // Keep the original character
+              currentText += from[i];
             }
-          } else {
-            // Keep the original character from startText
-            currentText += startText[i];
+          } 
+          // If this position only exists in the target string (we're adding characters)
+          else if (i >= fromLength && i < toLength) {
+            // Only start showing these characters once we're partway through the animation
+            const appearThreshold = 0.3 + (i - fromLength) / (toLength - fromLength) * 0.5;
+            
+            if (progress > appearThreshold) {
+              if (progress > 0.9 && Math.random() > 0.5) {
+                currentText += to[i];
+              } else {
+                currentText += chars[Math.floor(Math.random() * chars.length)];
+              }
+            }
+          }
+          // If this position only exists in the source string (we're removing characters)
+          else if (i < fromLength && i >= toLength) {
+            // Gradually remove characters as progress increases
+            const removeThreshold = 0.2 + (i / fromLength) * 0.6;
+            
+            if (progress < removeThreshold) {
+              currentText += from[i];
+            }
           }
         }
         
         // If we're at the end of the animation, show the final text
         if (currentIteration >= iterations) {
           clearInterval(animationInterval);
-          element.textContent = endText;
+          element.textContent = to;
           isAnimating = false;
+          currentDisplayText = to;
         } else {
           element.textContent = currentText;
         }
       }, interval);
     };
     
-    // Start animation when element is hovered
-    element.addEventListener("mouseenter", startAnimation);
+    // Function to handle hover events
+    const handleHover = () => {
+      if (hasInitialAnimationRun) {
+        // Toggle between startText and endText
+        if (currentDisplayText === startText) {
+          animateText(startText, endText);
+        } else {
+          animateText(endText, startText);
+        }
+      }
+    };
     
-    // Optional: Start animation when element is in view
+    // Initial animation (startText to endText)
+    const startInitialAnimation = () => {
+      animateText(startText, endText);
+      hasInitialAnimationRun = true;
+    };
+    
+    // Start animation when element is hovered
+    element.addEventListener("mouseenter", () => {
+      if (!hasInitialAnimationRun) {
+        startInitialAnimation();
+      } else {
+        handleHover();
+      }
+    });
+    
+    // Optional: Start initial animation when element is in view
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          setTimeout(startAnimation, 500); // Delay to make it noticeable after page load
+          setTimeout(startInitialAnimation, 500); // Delay to make it noticeable after page load
           observer.disconnect();
         }
       });

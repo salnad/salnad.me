@@ -32,6 +32,8 @@ the internet is amazing and at times it's hard for me to remember that it's not 
 
 and now, a haiku:
 
-_linkblogs allow you_ <br>
-_freedom to start creating_ <br>
-_you should try it too!_
+<blockquote class="text-white mb-12 border-l-4 pl-4 italic">
+linkblogs allow you <br>
+freedom to start creating <br>
+you should try it too!
+</blockquote>
